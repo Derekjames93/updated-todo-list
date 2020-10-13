@@ -8,6 +8,10 @@
     <title>Todo App</title>
   </head>
   <body>
+    <div>
+      <span>${ user.email }</span>
+      <a href="/logout">logout</a>
+    </div>
     <div class="container">
       <div class="card">
         <h1 class="todo-title">Todo App</h1>
@@ -17,6 +21,8 @@
           <button class="todo-button add" type="submit">Add</button>
         </form>
       </div>
+      <button><a href="http://localhost:3000/register"> Register Here!</a></button>
+      
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.js"></script>
     <script src="/script.js"></script>

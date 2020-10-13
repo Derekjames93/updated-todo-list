@@ -10,10 +10,11 @@ function getTodoHtml(todoData) {
   const html = `
       <li class="todo-item js-todo-item" data-id="${todoData.id}">
         <div class="todo-form">
-          <input type="text" class="todo-form-input js-todo-item-${todoData.id}" value="${todoData.todo}" />
+          <input type="text" class="${todoData.complete ?"completed": '' } todo-form-input js-todo-item-${todoData.id}" value="${todoData.name}" />
           <button class="todo-button save js-save-button" data-id="${todoData.id}" type="submit">Save</button>
         </div>
         <button class="todo-button delete js-delete-button" data-id="${todoData.id}" type="button">X</button>
+        <button class="todo-button complete js-complete-button" data-id="${todoData.id}" type="button">Done</button>
       </li>
     `;
   // return the built string back to the invoking function
@@ -58,7 +59,7 @@ function addTodo(text) {
   // send a "POST" request to '/api/todos'. Set the 'body' of the request to an object that contains the todo text
   axios
     .post('/api/todos', {
-      todo: text,
+      name: text,
     })
     // once the response comes back, run this arrow function, passing the response back through as 'response'
     .then((response) => {
@@ -88,17 +89,8 @@ function deleteTodo(id) {
     .delete(`/api/todos/${id}`)
     // once the response comes back, run this arrow function, passing the response back through as 'response'
     .then((response) => {
-      // map over the response data (it should be an array) and stick the new array into the 'htmlArray' variable
-      const htmlArray = response.data.map((todoItem) => {
-        // for the current item in the response.data array, return the html for that item into the new array
-        return getTodoHtml(todoItem);
-      });
-      // take the htmlArray and join it into a single string so we can put it on the page
-      const htmlString = htmlArray.join('');
-      // Find the todos element on the page
-      const todos = document.querySelector('.js-todos');
-      // set to innerHTML of the todos element to the HTML that was generated
-      todos.innerHTML = htmlString;
+      //render todos again
+      renderTodos();
     })
     // 'catch' any errors that happen with the request and run this function
     .catch((error) => {
@@ -120,12 +112,12 @@ function updateTodo(id) {
   // Set the 'body' of the request to an object that contains the todo text that should be updated
   axios
     .put(`/api/todos/${id}`, {
-      todo: todoField.value,
+      name: todoField.value,
     })
     // once the response comes back, run this arrow function, passing the response back through as 'response'
     .then((response) => {
       // update the field value to the response data that came back from the server
-      todoField.value = response.data.todo;
+      todoField.value = response.data.name;
     })
     // 'catch' any errors that happen with the request and run this function
     .catch((error) => {
@@ -134,6 +126,17 @@ function updateTodo(id) {
       // show an alert that contains a basic message, plus the error
       alert('could not update todo:' + errorText);
     });
+}
+function completeTodo(id) {
+  axios
+  .put(`/api/todos/mark/${id}`)
+  .then((response)=> {
+    renderTodos()
+  })
+    .catch((error) => {
+      console.log(error)
+
+    })
 }
 
 /* Start Execution */
@@ -170,6 +173,11 @@ document.addEventListener('click', (e) => {
     const id = e.target.dataset.id;
     // pass the id to the `updateTodo()` function
     updateTodo(id);
+  }
+
+  if (e.target.classList.contains('js-complete-button')){
+    const id = e.target.dataset.id;
+    completeTodo(id);
   }
 });
 
